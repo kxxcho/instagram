@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>instagram</title>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+<style>
+    body {
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+        background-color: #fafafa; display: flex; justify-content: center;
+        padding: 40px 20px; margin: 0; color: #262626;
+    }
+    
+    .maker-container {
+        display: flex; gap: 40px; flex-wrap: wrap; max-width: 900px; justify-content: center;
+    }
+
+    @media (max-width: 768px) {
+        body { padding: 20px 10px; }
+        .maker-container { gap: 20px; flex-direction: column; align-items: center; }
+        .input-section { width: 100% !important; max-width: 340px; padding: 20px !important; }
+    }
+
+    .input-section {
+        background: white; padding: 30px; border-radius: 20px; width: 340px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08); box-sizing: border-box;
+    }
+    
+    .tab-container {
+        display: flex; gap: 4px; margin-bottom: 20px;
+        background: #eee; padding: 4px; border-radius: 10px;
+    }
+    .tab-btn {
+        flex: 1; padding: 8px 4px; border: none; background: none; font-size: 12px;
+        font-weight: bold; color: #666; cursor: pointer; border-radius: 8px; text-align: center;
+    }
+    .tab-btn.active { background: white; color: #262626; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+    .input-section h2 { margin-top: 0; font-size: 18px; color: #262626; text-align: center; margin-bottom: 15px;}
+    .input-group { margin-bottom: 12px; }
+    .input-group label { display: block; font-size: 12px; margin-bottom: 4px; font-weight: bold; color: #666;}
+    .input-group input[type="text"], .input-group textarea, .input-group select { 
+        width: 100%; padding: 8px 12px; border: 1px solid #dbdbdb; border-radius: 6px; box-sizing: border-box; font-family: inherit; font-size: 13px;
+    }
+    .input-group textarea { resize: none; height: 60px; }
+    .input-group input[type="file"] {
+        width: 100%; padding: 6px; border: 1px solid #dbdbdb; border-radius: 6px; box-sizing: border-box; background-color: #fafafa; font-size: 12px;
+    }
+    .hl-input-row { display: flex; gap: 5px; margin-bottom: 5px; }
+
+    .btn-apply { width: 100%; padding: 12px; background: #0095f6; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 8px; margin-top: 10px; }
+    .btn-apply:hover { background: #1877f2; }
+    .btn-download { width: 100%; padding: 12px; background: #262626; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+    .mockup-card {
+        width: 340px; background-color: white; border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid #dbdbdb;
+        box-sizing: border-box; overflow: hidden; display: none;
+    }
+    .mockup-card.active { display: block; }
+
+    .img-box { width: 100%; position: relative; background-size: cover; background-position: center; background-repeat: no-repeat; background-color: #efefef; }
+    .avatar-box { border-radius: 50%; background-size: cover; background-position: center; background-repeat: no-repeat; background-color: #dbdbdb; border: 1px solid rgba(0,0,0,0.08); box-sizing: border-box; }
+
+    .story-ring-wrap { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; padding: 2.5px; }
+    .story-ring-wrap.active-ring { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+    .story-ring-wrap.active-ring .avatar-box { border: 2px solid white; }
+
+    .profile-card { padding: 20px 0 0 0; }
+    .profile-inner { padding: 0 15px; }
+    .profile-header-top { display: flex; align-items: center; gap: 20px; margin-bottom: 15px; }
+    .profile-avatar { width: 72px; height: 72px; flex-shrink: 0; }
+    .profile-stats { display: flex; gap: 20px; flex-grow: 1; justify-content: space-around; text-align: center; }
+    .stat-item { display: flex; flex-direction: column; font-size: 13px; }
+    .stat-num { font-weight: bold; font-size: 15px; color: #262626; }
+    .stat-label { color: #666; font-size: 11px; margin-top: 2px; }
+    .profile-bio { font-size: 13px; line-height: 1.4; margin-bottom: 20px; }
+    .profile-name { font-weight: bold; margin-bottom: 2px; }
+    .profile-text { color: #262626; white-space: pre-line; word-break: break-all; }
+    
+    .profile-highlights { display: flex; gap: 18px; padding-top: 15px; border-top: 1px solid #efefef; overflow-x: auto; margin-bottom: 15px; }
+    .hl-item { display: flex; flex-direction: column; align-items: center; width: 62px; flex-shrink: 0; }
+    .hl-circle { width: 62px; height: 62px; border-radius: 50%; padding: 2px; background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); box-sizing: border-box; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; }
+    .hl-img { width: 100%; height: 100%; border-radius: 50%; background-size: cover; background-position: center; background-color: #f2f2f2; border: 2px solid white; box-sizing: border-box; }
+    .hl-text { font-size: 11px; color: #262626; width: 100%; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    
+    .profile-grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 5px; }
+    .grid-item { width: 100%; position: relative; padding-bottom: 100%; background-color: #efefef; background-size: cover; background-position: center; }
+
+    .post-header { display: flex; align-items: center; padding: 10px; gap: 10px; }
+    .post-avatar { width: 32px; height: 32px; }
+    .post-user-info { display: flex; flex-direction: column; }
+    .post-username { font-size: 13px; font-weight: bold; }
+    .post-location { font-size: 11px; color: #666; margin-top: 1px; }
+    .post-main-img { padding-bottom: 100%; border-top: 1px solid #efefef; border-bottom: 1px solid #efefef; }
+    .post-actions { padding: 10px 12px 6px; display: flex; justify-content: space-between; align-items: center; }
+    .post-actions-left { display: flex; gap: 12px; }
+    .post-actions svg { width: 22px; height: 22px; stroke: #262626; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .post-content-area { padding: 0 12px 14px; font-size: 13.5px; line-height: 1.4; }
+    .post-likes { font-weight: bold; margin-bottom: 5px; font-size: 13px; }
+    .post-caption { word-break: break-all; }
+    .post-caption .bold-user { font-weight: bold; margin-right: 5px; }
+
+    .story-card { background-color: #1a1a1a; border: none; position: relative; }
+    .story-main-img { padding-bottom: 177.77%; height: 0; }
+    .story-overlay {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 15%, rgba(0,0,0,0) 85%, rgba(0,0,0,0.3) 100%);
+        pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; padding: 12px; overflow: hidden;
+    }
+    .story-header { display: flex; align-items: center; gap: 8px; width: 100%; }
+    .story-avatar { width: 32px; height: 32px; border: 2px solid #fff; }
+    .story-username { font-size: 13px; font-weight: bold; color: white; }
+    .story-time { font-size: 12px; color: rgba(255,255,255,0.7); }
+    .story-footer { display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 10px; }
+    .story-input {
+        flex: 1; border: 1px solid rgba(255,255,255,0.4); border-radius: 20px; padding: 8px 15px; font-size: 13px; color: white; background: transparent; opacity: 0.9;
+    }
+
+    .story-mention-box {
+        position: absolute; top: 40%; left: 30%; /* 초기 위치 */
+        padding: 6px 12px; background: rgba(0, 0, 0, 0.6); color: white;
+        border-radius: 6px; font-size: 13px; font-weight: bold;
+        pointer-events: auto; /* 터치/클릭 가능하게 */
+        cursor: grab; display: none; z-index: 10; user-select: none; white-space: nowrap;
+    }
+    .story-mention-box:active { cursor: grabbing; }
+
+    #card-dm { --dm-sent-bg: #3797f0; }
+    
+    .dm-header { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid #efefef; gap: 12px; }
+    .dm-header-back { width: 20px; height: 20px; stroke: #262626; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round;}
+    .dm-header-name { flex: 1; font-weight: bold; font-size: 15px; }
+    
+    .dm-body { padding: 15px; min-height: 280px; display: flex; flex-direction: column; gap: 10px; background: white; }
+    .dm-date { text-align: center; font-size: 11px; color: #8e8e8e; margin-bottom: 10px; font-weight: bold; }
+    
+    .dm-row-recv { display: flex; gap: 8px; align-items: flex-end; }
+    .dm-recv-avatar { width: 26px; height: 26px; flex-shrink: 0; }
+    .dm-bubble-recv {
+        background-color: #efefef; color: #262626; padding: 10px 14px; border-radius: 18px; 
+        font-size: 14px; max-width: 65%; word-break: break-all; border-bottom-left-radius: 4px; display: flex; flex-direction: column; gap: 6px;
+    }
+    .dm-bubble-sent {
+        background-color: var(--dm-sent-bg); color: white; padding: 10px 14px; border-radius: 18px; 
+        font-size: 14px; max-width: 65%; align-self: flex-end; word-break: break-all; border-bottom-right-radius: 4px; display: flex; flex-direction: column; gap: 6px;
+    }
+    .dm-img-attached { width: 100%; min-width: 120px; aspect-ratio: 1/1; border-radius: 8px; background-size: cover; background-position: center; }
+
+    .dm-footer { display: flex; align-items: center; padding: 10px 15px 15px; gap: 10px; }
+    .dm-input-pill {
+        flex: 1; background: #efefef; border-radius: 20px; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .dm-input-text { font-size: 14px; color: #8e8e8e; }
+    .dm-input-pill svg { width: 20px; height: 20px; stroke: #262626; fill: none; stroke-width: 2; opacity: 0.6; }
+.dm-color-picker {
+    width: 100%;
+    height: 40px;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    -webkit-appearance: none; 
+}
+.dm-color-picker::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+.dm-color-picker::-webkit-color-swatch {
+    border: 1px solid #dbdbdb;
+    border-radius: 6px;
+}
+</style>
+</head>
+<body>
+
+<div class="maker-container">
+    <div class="input-section">
+        <h2>kxxchostagram!</h2>
+        
+        <div class="tab-container">
+            <button class="tab-btn active" onclick="switchTab('profile')">프로필</button>
+            <button class="tab-btn" onclick="switchTab('post')">게시물</button>
+            <button class="tab-btn" onclick="switchTab('story')">스토리</button>
+            <button class="tab-btn" onclick="switchTab('dm')">메세지</button>
+        </div>
+
+        <div class="input-group">
+            <label>profile</label>
+            <input type="file" id="in-avatar" accept="image/*">
+        </div>
+        <div class="input-group">
+            <label>username</label>
+            <input type="text" id="in-username" placeholder="ex. username">
+        </div>
+
+        <div id="fields-profile" class="tab-fields">
+            <div class="input-group" style="display: flex; gap: 10px; align-items: center; background:#f9f9f9; padding:8px; border-radius:6px;">
+                <input type="checkbox" id="in-profile-ring" onchange="updateMockup()" style="width: auto; margin:0;">
+                <label style="margin: 0; color:#262626;">스토리 표시</label>
+            </div>
+            <div class="input-group" style="margin-top:10px;"> <label>Name</label> <input type="text" id="in-profile-name" placeholder="ex. name"> </div>
+            <div class="input-group"> <label>Bio</label> <textarea id="in-profile-bio" placeholder="자유롭게 바이오를 꾸며보세요(⸝⸝๑  ̫ ๑⸝⸝⸝)"></textarea> </div>
+            <div class="color-pickers">
+                <div class="input-group"> <label>게시물</label> <input type="text" id="in-stat-posts" value="12"> </div>
+                <div class="input-group"> <label>팔로워</label> <input type="text" id="in-stat-followers" value="456"> </div>
+                <div class="input-group"> <label>팔로잉</label> <input type="text" id="in-stat-following" value="789"> </div>
+            </div>
+            
+            <div class="input-group" style="margin-top: 15px;">
+                <label>하이라이트 설정 (최대 3개)</label>
+                <div class="hl-input-row"> <input type="file" id="in-hl-1" accept="image/*" style="width: 55%;"> <input type="text" id="in-hl-title-1" placeholder="이름 1" style="width: 45%;"> </div>
+                <div class="hl-input-row"> <input type="file" id="in-hl-2" accept="image/*" style="width: 55%;"> <input type="text" id="in-hl-title-2" placeholder="이름 2" style="width: 45%;"> </div>
+                <div class="hl-input-row"> <input type="file" id="in-hl-3" accept="image/*" style="width: 55%;"> <input type="text" id="in-hl-title-3" placeholder="이름 3" style="width: 45%;"> </div>
+            </div>
+
+            <div class="input-group" style="margin-top: 15px;">
+                <label>프로필 피드 사진 (3x2)</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+                    <input type="file" id="in-p-1" accept="image/*"> <input type="file" id="in-p-2" accept="image/*">
+                    <input type="file" id="in-p-3" accept="image/*"> <input type="file" id="in-p-4" accept="image/*">
+                    <input type="file" id="in-p-5" accept="image/*"> <input type="file" id="in-p-6" accept="image/*">
+                </div>
+            </div>
+        </div>
+
+        <div id="fields-post" class="tab-fields" style="display: none;">
+            <div class="input-group" style="display: flex; gap: 10px; align-items: center; background:#f9f9f9; padding:8px; border-radius:6px; margin-bottom:10px;">
+                <input type="checkbox" id="in-post-ring" onchange="updateMockup()" style="width: auto; margin:0;">
+                <label style="margin: 0; color:#262626;">게시물 상단 프사 스토리 표시</label>
+            </div>
+            <div class="input-group"> <label>위치</label> <input type="text" id="in-post-location" placeholder="ex. 위"> </div>
+            <div class="input-group"> <label>게시물 사진</label> <input type="file" id="in-post-img" accept="image/*"> </div>
+            <div class="input-group"> <label>좋아요 수</label> <input type="text" id="in-post-likes" placeholder="ex. 1,234"> </div>
+            <div class="input-group"> <label>본문 내용</label> <textarea id="in-post-caption" placeholder="본문 내용"></textarea> </div>
+        </div>
+
+        <div id="fields-story" class="tab-fields" style="display: none;">
+            <div class="input-group" style="display: flex; gap: 10px; align-items: center; background:#f9f9f9; padding:8px; border-radius:6px; margin-bottom:10px;">
+                <input type="checkbox" id="in-story-ring" onchange="updateMockup()" style="width: auto; margin:0;">
+                <label style="margin: 0; color:#262626;">스토리 상단 프사 스토리 띠 표시</label>
+            </div>
+            <div class="input-group"> <label>스토리 사진</label> <input type="file" id="in-story-img" accept="image/*"> </div>
+            <div class="input-group"> <label>시간 표시</label> <input type="text" id="in-story-time" placeholder="ex. 6시간, 1h"> </div>
+            
+            <div style="background:#f5f5f5; padding:12px; border-radius:8px; margin-top:15px;">
+                <div style="display: flex; gap: 8px; align-items: center; margin-bottom:8px;">
+                    <input type="checkbox" id="in-story-tag-toggle" onchange="updateMockup()" style="width:auto; margin:0;">
+                    <label style="margin:0; font-weight:bold; color:#262626;">다른 사람 태그 표시</label>
+                </div>
+                <input type="text" id="in-story-tag-text" placeholder="ex. @상대방_아이디" oninput="updateMockup()">
+                <div style="font-size:11px; color:#666; margin-top:5px;">화면에 생성된 태그를 드래그해서 옮길 수 있습니다 ¯꒳¯)!</div>
+            </div>
+        </div>
+
+        <div id="fields-dm" class="tab-fields" style="display: none;">
+            <div class="input-group" style="display: flex; gap: 10px; align-items: center; background:#f9f9f9; padding:8px; border-radius:6px; margin-bottom:10px;">
+                <input type="checkbox" id="in-dm-ring" onchange="updateMockup()" style="width: auto; margin:0;">
+                <label style="margin: 0; color:#262626;">상대방 프사 스토리 표시</label>
+            </div>
+            <div class="input-group"> <label>디엠 상대방 이름</label> <input type="text" id="in-dm-name" placeholder="ex. 상대방 이름"> </div>
+            <div class="input-group"> <label>상대방 프사</label> <input type="file" id="in-dm-avatar" accept="image/*"> </div>
+            
+            <div class="input-group">
+    <label>내 말풍선(파란색) 색상 변경</label>
+    <input type="color" id="in-dm-color" value="#3797f0" class="dm-color-picker">
+</div>
+            
+            <div style="background:#f5f5f5; padding:15px; border-radius:10px; margin-top:15px;">
+                <label style="font-weight:bold; font-size:13px; display:block; margin-bottom:8px;">talk about</label>
+                <select id="dm-sender">
+                    <option value="recv">상대방 → 나</option>
+                    <option value="sent">나 → 상대방</option>
+                </select>
+                <textarea id="dm-text-input" placeholder="메시지 내용" style="margin-top:8px;"></textarea>
+                <div class="input-group" style="margin-top:8px;">
+                    <label>사진 첨부 (선택)</label>
+                    <input type="file" id="dm-img-input" accept="image/*">
+                </div>
+                <div style="display:flex; gap:8px; margin-top:10px;">
+                    <button type="button" onclick="addDmMessage()" style="flex:1; padding:10px; background:#262626; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;"> 추가</button>
+                    <button type="button" onclick="clearDmMessages()" style="flex:1; padding:10px; background:#ff4d4f; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">초기화</button>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-apply" onclick="updateMockup()">적용하기 (미리보기)</button>
+        <button class="btn-download" onclick="captureMockup()">이미지로 저장하기</button>
+    </div>
+
+    <div id="capture-area">
+        
+        <div class="mockup-card profile-card active" id="card-profile">
+            <div class="profile-inner">
+                <div class="profile-header-top">
+                    <div class="story-ring-wrap" id="view-profile-ring">
+                        <div class="avatar-box profile-avatar target-avatar"></div>
+                    </div>
+                    <div class="profile-stats">
+                        <div class="stat-item"><span class="stat-num" id="view-stat-posts">12</span><span class="stat-label">게시물</span></div>
+                        <div class="stat-item"><span class="stat-num" id="view-stat-followers">456</span><span class="stat-label">팔로워</span></div>
+                        <div class="stat-item"><span class="stat-num" id="view-stat-following">789</span><span class="stat-label">팔로잉</span></div>
+                    </div>
+                </div>
+                <div class="profile-bio">
+                    <div class="profile-name" id="view-profile-name">Name</div>
+                    <div class="profile-text" id="view-profile-bio">Bio text here.</div>
+                </div>
+                <div class="profile-highlights">
+                    <div class="hl-item"><div class="hl-circle"><div class="hl-img" id="view-hl-1"></div></div><div class="hl-text" id="view-hl-title-1">하이라이트1</div></div>
+                    <div class="hl-item"><div class="hl-circle"><div class="hl-img" id="view-hl-2"></div></div><div class="hl-text" id="view-hl-title-2">하이라이트2</div></div>
+                    <div class="hl-item"><div class="hl-circle"><div class="hl-img" id="view-hl-3"></div></div><div class="hl-text" id="view-hl-title-3">하이라이트3</div></div>
+                </div>
+            </div>
+            
+            <div class="profile-grid-container">
+                <div class="grid-item" id="view-p-1"></div> <div class="grid-item" id="view-p-2"></div> <div class="grid-item" id="view-p-3"></div>
+                <div class="grid-item" id="view-p-4"></div> <div class="grid-item" id="view-p-5"></div> <div class="grid-item" id="view-p-6"></div>
+            </div>
+        </div>
+
+        <div class="mockup-card" id="card-post">
+            <div class="post-header">
+                <div class="story-ring-wrap" id="view-post-ring" style="padding: 2px;">
+                    <div class="avatar-box post-avatar target-avatar"></div>
+                </div>
+                <div class="post-user-info">
+                    <span class="post-username target-user">username</span><span class="post-location" id="view-post-location"></span>
+                </div>
+            </div>
+            <div class="img-box post-main-img" id="view-post-img"></div>
+            <div class="post-actions">
+                <div class="post-actions-left">
+                    <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                    <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </div>
+                <svg viewBox="0 0 24 24"><polygon points="20 21 12 13.44 4 21 4 3 20 3 20 21"></polygon></svg>
+            </div>
+            <div class="post-content-area">
+                <div class="post-likes">좋아요 <span id="view-post-likes">0</span>개</div>
+                <div class="post-caption"><span class="bold-user target-user">username</span><span id="view-post-caption">caption</span></div>
+            </div>
+        </div>
+
+        <div class="mockup-card story-card" id="card-story">
+            <div class="img-box story-main-img" id="view-story-img">
+                <div class="story-overlay">
+                    <div class="story-header">
+                        <div class="story-ring-wrap" id="view-story-ring" style="padding: 2px;">
+                            <div class="avatar-box story-avatar target-avatar" style="border: 1px solid white;"></div>
+                        </div>
+                        <span class="story-username target-user">username</span><span class="story-time" id="view-story-time">1h</span>
+                    </div>
+                    
+                    <div class="story-mention-box" id="view-story-mention">@username</div>
+                    
+                    <div class="story-footer">
+                        <div class="story-input">메시지 보내기...</div>
+                        <svg viewBox="0 0 24 24" style="width:24px;height:24px; stroke:white; fill:none; stroke-width:2; stroke-linecap: round; stroke-linejoin: round;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mockup-card" id="card-dm">
+            <div class="dm-header">
+                <svg class="dm-header-back" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+                <div class="story-ring-wrap" id="view-dm-ring" style="padding: 2px;">
+                    <div class="avatar-box" id="view-dm-avatar" style="width:30px; height:30px;"></div>
+                </div>
+                <div class="dm-header-name" id="view-dm-name">상대방 이름</div>
+            </div>
+            
+            <div class="dm-body" id="dm-messages-container">
+                </div>
+            
+            <div class="dm-footer">
+                <div class="dm-input-pill">
+                    <span class="dm-input-text">메시지...</span>
+                    <svg viewBox="0 0 24 24"><path d="M12 2C9.79 2 8 3.79 8 6V11C8 13.21 9.79 15 12 15C14.21 15 16 13.21 16 11V6C16 3.79 14.21 2 12 2Z"/><path d="M19 10V11C19 14.87 15.87 18 12 18C8.13 18 5 14.87 5 11V10"/><path d="M12 18V22M8 22H16"/></svg>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    let currentTab = 'profile'; 
+    
+    let srcAvatar = "https://via.placeholder.com/150/dbdbdb/ffffff?text=User";
+    let srcPostImg = "https://via.placeholder.com/600/efefef/999999?text=Post+Image";
+    let srcStoryImg = "https://via.placeholder.com/600x1066/1a1a1a/ffffff?text=Story+Image";
+    let srcHl1 = "", srcHl2 = "", srcHl3 = "";
+    let srcDmAvatar = "https://via.placeholder.com/150/dbdbdb/ffffff?text=Partner";
+    let srcPosts = Array(6).fill("https://via.placeholder.com/300/efefef/999999?text=Grid");
+
+    let dmMessages = [];
+    let tempDmImg = "";
+
+    function readImg(file, callback) {
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) { callback(e.target.result); };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    document.getElementById('in-avatar').addEventListener('change', function(e) { readImg(e.target.files[0], (res) => { srcAvatar = res; }); });
+    document.getElementById('in-post-img').addEventListener('change', function(e) { readImg(e.target.files[0], (res) => { srcPostImg = res; }); });
+    document.getElementById('in-story-img').addEventListener('change', function(e) { readImg(e.target.files[0], (res) => { srcStoryImg = res; }); });
+    document.getElementById('in-hl-1').addEventListener('change', function(e) { readImg(e.target.files[0], (res) => { srcHl1 = res; }); });
+    document.getElementById('in-hl-2').addEventListener('change', function(e) { readImg(e.target.files[0], (res) => { srcHl2 = res; }); });
+    document.getElementById('in-hl-3').addEventListener('change', function(e) { readImg(e.target.files[0], (res) => { srcHl3 = res; }); });
+    document.getElementById('in-dm-avatar').addEventListener('change', function(e) { readImg(e.target.files[0], (res) => { srcDmAvatar = res; updateMockup(); }); });
+    
+    document.getElementById('dm-img-input').addEventListener('change', function(e) { 
+        readImg(e.target.files[0], (res) => { tempDmImg = res; }); 
+    });
+
+    for(let i=1; i<=6; i++) {
+        document.getElementById(`in-p-${i}`).addEventListener('change', function(e) { 
+            readImg(e.target.files[0], (res) => { srcPosts[i-1] = res; }); 
+        });
+    }
+
+    function switchTab(tab) {
+        currentTab = tab;
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        document.querySelectorAll('.tab-fields').forEach(f => f.style.display = 'none');
+        document.getElementById(`fields-${tab}`).style.display = 'block';
+        document.querySelectorAll('.mockup-card').forEach(c => c.classList.remove('active'));
+        document.getElementById(`card-${tab}`).classList.add('active');
+    }
+
+    function renderDm() {
+        const container = document.getElementById('dm-messages-container');
+        container.innerHTML = dmMessages.length > 0 ? '<div class="dm-date">오늘 오후 1:23</div>' : '';
+        
+        dmMessages.forEach(m => {
+            let contentHtml = '';
+            if (m.img) contentHtml += `<div class="dm-img-attached" style="background-image:url('${m.img}')"></div>`;
+            if (m.text) contentHtml += `<div>${m.text.replace(/\n/g, '<br>')}</div>`;
+
+            if (m.sender === 'recv') {
+                container.innerHTML += `
+                    <div class="dm-row-recv">
+                        <div class="avatar-box dm-recv-avatar" style="background-image:url('${srcDmAvatar}')"></div>
+                        <div class="dm-bubble-recv">${contentHtml}</div>
+                    </div>`;
+            } else {
+                container.innerHTML += `<div class="dm-bubble-sent">${contentHtml}</div>`;
+            }
+        });
+    }
+
+    function addDmMessage() {
+        const sender = document.getElementById('dm-sender').value;
+        const text = document.getElementById('dm-text-input').value;
+        if (!text && !tempDmImg) return alert('메시지 내용이나 사진을 입력해주세요!');
+        dmMessages.push({ sender, text, img: tempDmImg });
+        document.getElementById('dm-text-input').value = '';
+        document.getElementById('dm-img-input').value = '';
+        tempDmImg = '';
+        renderDm();
+    }
+
+    function clearDmMessages() {
+        dmMessages = [];
+        renderDm();
+    }
+
+    const mentionBox = document.getElementById('view-story-mention');
+    let isDragging = false;
+    let startX, startY, initialLeft, initialTop;
+
+    function dragStart(e) {
+        isDragging = true;
+        startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+        startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+        initialLeft = mentionBox.offsetLeft;
+        initialTop = mentionBox.offsetTop;
+    }
+
+    function drag(e) {
+        if (!isDragging) return;
+        e.preventDefault();         let currentX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+        let currentY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+        
+        mentionBox.style.left = (initialLeft + (currentX - startX)) + 'px';
+        mentionBox.style.top = (initialTop + (currentY - startY)) + 'px';
+    }
+
+    function dragEnd() {
+        isDragging = false;
+    }
+
+    mentionBox.addEventListener('mousedown', dragStart);
+    mentionBox.addEventListener('touchstart', dragStart, {passive: false});
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('touchmove', drag, {passive: false});
+    document.addEventListener('mouseup', dragEnd);
+    document.addEventListener('touchend', dragEnd);
+
+
+    function updateMockup() {
+        const username = document.getElementById('in-username').value || 'instagram_id';
+        document.querySelectorAll('.target-user').forEach(el => el.innerText = username);
+        document.querySelectorAll('.target-avatar').forEach(el => el.style.backgroundImage = `url('${srcAvatar}')`);
+
+        document.getElementById('in-profile-ring').checked ? document.getElementById('view-profile-ring').classList.add('active-ring') : document.getElementById('view-profile-ring').classList.remove('active-ring');
+        document.getElementById('in-post-ring').checked ? document.getElementById('view-post-ring').classList.add('active-ring') : document.getElementById('view-post-ring').classList.remove('active-ring');
+        document.getElementById('in-story-ring').checked ? document.getElementById('view-story-ring').classList.add('active-ring') : document.getElementById('view-story-ring').classList.remove('active-ring');
+        document.getElementById('in-dm-ring').checked ? document.getElementById('view-dm-ring').classList.add('active-ring') : document.getElementById('view-dm-ring').classList.remove('active-ring');
+
+        if (currentTab === 'profile') {
+            document.getElementById('view-profile-name').innerText = document.getElementById('in-profile-name').value || 'Name';
+            document.getElementById('view-profile-bio').innerText = document.getElementById('in-profile-bio').value || '';
+            document.getElementById('view-stat-posts').innerText = document.getElementById('in-stat-posts').value || '0';
+            document.getElementById('view-stat-followers').innerText = document.getElementById('in-stat-followers').value || '0';
+            document.getElementById('view-stat-following').innerText = document.getElementById('in-stat-following').value || '0';
+            
+            document.getElementById('view-hl-title-1').innerText = document.getElementById('in-hl-title-1').value || '하이라이트 1';
+            document.getElementById('view-hl-title-2').innerText = document.getElementById('in-hl-title-2').value || '하이라이트 2';
+            document.getElementById('view-hl-title-3').innerText = document.getElementById('in-hl-title-3').value || '하이라이트 3';
+            
+            if(srcHl1) document.getElementById('view-hl-1').style.backgroundImage = `url('${srcHl1}')`;
+            if(srcHl2) document.getElementById('view-hl-2').style.backgroundImage = `url('${srcHl2}')`;
+            if(srcHl3) document.getElementById('view-hl-3').style.backgroundImage = `url('${srcHl3}')`;
+
+            for(let i=1; i<=6; i++) {
+                document.getElementById(`view-p-${i}`).style.backgroundImage = `url('${srcPosts[i-1]}')`;
+            }
+        } 
+        else if (currentTab === 'post') {
+            document.getElementById('view-post-location').innerText = document.getElementById('in-post-location').value;
+            document.getElementById('view-post-likes').innerText = document.getElementById('in-post-likes').value || '0';
+            document.getElementById('view-post-caption').innerText = document.getElementById('in-post-caption').value || '';
+            document.getElementById('view-post-img').style.backgroundImage = `url('${srcPostImg}')`;
+        } 
+        else if (currentTab === 'story') {
+            document.getElementById('view-story-time').innerText = document.getElementById('in-story-time').value || '1h';
+            document.getElementById('view-story-img').style.backgroundImage = `url('${srcStoryImg}')`;
+            
+            if(document.getElementById('in-story-tag-toggle').checked) {
+                mentionBox.style.display = 'block';
+                const tagText = document.getElementById('in-story-tag-text').value || '@username';
+                mentionBox.innerText = tagText.startsWith('@') ? tagText : '@' + tagText;
+            } else {
+                mentionBox.style.display = 'none';
+            }
+        }
+        else if (currentTab === 'dm') {
+            document.getElementById('view-dm-name').innerText = document.getElementById('in-dm-name').value || '상대방 이름';
+            document.getElementById('view-dm-avatar').style.backgroundImage = `url('${srcDmAvatar}')`;
+            document.getElementById('card-dm').style.setProperty('--dm-sent-bg', document.getElementById('in-dm-color').value);
+            renderDm(); 
+        }
+    }
+
+    renderDm();
+
+    function captureMockup() {
+        const target = document.getElementById(`card-${currentTab}`);
+        html2canvas(target, { backgroundColor: null, scale: 2, useCORS: true }).then(canvas => {
+            let link = document.createElement('a');
+            link.download = `instagram_${currentTab}.png`; 
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    }
+</script>
+
+</body>
+</html>
